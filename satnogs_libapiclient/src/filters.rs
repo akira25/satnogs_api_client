@@ -1,23 +1,65 @@
-// use pyo3::prelude::*;
 use serde::Serialize;
 use serde_json;
 use serde_urlencoded::ser::Error;
 
+type DtStr = String; // 2026-02-01T00:14:11Z
+
 #[derive(Debug, Serialize, Default, Clone)]
-// #[pyclass]
 pub struct StationFilter {
     pub status: Option<String>,
     pub name: Option<String>,
     pub client_version: Option<String>,
 }
+impl QueryParameters for StationFilter {}
 
-impl StationFilter {
-    pub fn to_query(&self) -> Result<String, Error> {
+#[derive(Debug, Serialize, Default, Clone)]
+#[allow(non_snake_case)]
+pub struct JobFilter {
+    pub status: Option<String>,
+    pub ground_station: Option<String>,
+    pub start: Option<DtStr>,
+    pub end: Option<DtStr>,
+    pub transmitter_uuid: Option<String>,
+    pub transmitter_mode: Option<String>,
+    pub transmitter_type: Option<String>,
+    pub observer: Option<String>,
+    pub sat_id: Option<String>,
+    pub start__lt: Option<DtStr>,
+    pub end__gt: Option<DtStr>,
+    pub observation_id: Option<u64>,
+    pub norad_cat_id: Option<u64>,
+}
+impl QueryParameters for JobFilter {}
+
+#[derive(Debug, Serialize, Default, Clone)]
+#[allow(non_snake_case)]
+pub struct ObservationFilter {
+    status: Option<String>,
+    ground_station: Option<String>,
+    start: Option<DtStr>,
+    end: Option<DtStr>,
+    transmitter_uuid: Option<String>,
+    transmitter_mode: Option<String>,
+    transmitter_type: Option<String>,
+    waterfall_status: Option<String>,
+    vetted_status: Option<String>,
+    vetted_user: Option<String>,
+    observer: Option<String>,
+    sat_id: Option<String>,
+    start__lt: Option<DtStr>,
+    end__gt: Option<DtStr>,
+    observation_id: Option<u64>,
+    norad_cat_id: Option<u64>,
+}
+impl QueryParameters for ObservationFilter {}
+
+pub trait QueryParameters: Serialize + Sized {
+    fn to_query(&self) -> Result<String, Error> {
         serde_urlencoded::to_string(self)
     }
 
     /// Generates a vector of fieldnames and values to be fed into ureqs query-function
-    pub fn into_vec(self) -> Vec<(String, String)> {
+    fn into_vec(self) -> Vec<(String, String)> {
         let value = serde_json::to_value(self).unwrap();
 
         value
@@ -28,15 +70,6 @@ impl StationFilter {
             .collect()
     }
 }
-
-//fn filters_as_pairs<T: Serialize>(filters: &T) -> Vec<(String, String)> {
-//    let mut pairs = Vec::new();
-//
-//    let serializer = serde_urlencoded::Serializer::new(&mut pairs);
-//    filters.serialize(serializer).unwrap();
-//
-//    pairs
-//}
 
 #[cfg(test)]
 mod test {
