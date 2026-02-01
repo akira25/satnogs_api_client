@@ -152,4 +152,23 @@ mod test {
 
         assert_eq!(obs.len(), 37)
     }
+
+    #[test]
+    fn test_get_next_cursor_url() {
+        let header = r#"
+        <https://network.satnogs.org/api/observations/?cursor=abc>; rel="next",
+        <https://network.satnogs.org/api/observations/>; rel="prev"
+        "#;
+
+        let api_url = "https://network.satnogs.org/api/".to_string();
+        let agent = ureq::Agent::new_with_defaults();
+        let client = APIClient { agent, api_url };
+
+        let s = client.get_next_cursor_url(header).unwrap();
+
+        assert_eq!(
+            s,
+            "https://network.satnogs.org/api/observations/?cursor=abc".to_string()
+        )
+    }
 }
