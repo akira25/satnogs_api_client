@@ -27,29 +27,29 @@ pub struct JobFilter {
     pub start__lt: Option<DtStr>,
     pub end__gt: Option<DtStr>,
     pub observation_id: Option<u64>,
-    pub norad_cat_id: Option<u64>,
+    pub norad_cat_id: Option<u32>,
 }
 impl QueryParameters for JobFilter {}
 
 #[derive(Debug, Serialize, Default, Clone)]
 #[allow(non_snake_case)]
 pub struct ObservationFilter {
-    status: Option<String>,
-    ground_station: Option<String>,
-    start: Option<DtStr>,
-    end: Option<DtStr>,
-    transmitter_uuid: Option<String>,
-    transmitter_mode: Option<String>,
-    transmitter_type: Option<String>,
-    waterfall_status: Option<String>,
-    vetted_status: Option<String>,
-    vetted_user: Option<String>,
-    observer: Option<String>,
-    sat_id: Option<String>,
-    start__lt: Option<DtStr>,
-    end__gt: Option<DtStr>,
-    observation_id: Option<u64>,
-    norad_cat_id: Option<u64>,
+    pub status: Option<String>,
+    pub ground_station: Option<String>,
+    pub start: Option<DtStr>,
+    pub end: Option<DtStr>,
+    pub transmitter_uuid: Option<String>,
+    pub transmitter_mode: Option<String>,
+    pub transmitter_type: Option<String>,
+    pub waterfall_status: Option<String>,
+    pub vetted_status: Option<String>,
+    pub vetted_user: Option<String>,
+    pub observer: Option<String>,
+    pub sat_id: Option<String>,
+    pub start__lt: Option<DtStr>,
+    pub end__gt: Option<DtStr>,
+    pub observation_id: Option<u64>,
+    pub norad_cat_id: Option<u32>,
 }
 impl QueryParameters for ObservationFilter {}
 
