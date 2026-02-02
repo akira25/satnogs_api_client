@@ -16,7 +16,7 @@ impl QueryParameters for StationFilter {}
 #[allow(non_snake_case)]
 pub struct JobFilter {
     pub status: Option<String>,
-    pub ground_station: Option<String>,
+    pub ground_station: Option<u32>,
     pub start: Option<DtStr>,
     pub end: Option<DtStr>,
     pub transmitter_uuid: Option<String>,
@@ -35,7 +35,7 @@ impl QueryParameters for JobFilter {}
 #[allow(non_snake_case)]
 pub struct ObservationFilter {
     pub status: Option<String>,
-    pub ground_station: Option<String>,
+    pub ground_station: Option<u32>,
     pub start: Option<DtStr>,
     pub end: Option<DtStr>,
     pub transmitter_uuid: Option<String>,
@@ -66,7 +66,13 @@ pub trait QueryParameters: Serialize + Sized {
             .as_object()
             .unwrap()
             .iter()
-            .filter_map(|(k, v)| v.as_str().map(|s| (k.clone(), s.to_string())))
+            .filter_map(|(k, v)| {
+                if v.is_null() {
+                    None
+                } else {
+                    Some((k.clone(), v.to_string().trim_matches('"').to_string()))
+                }
+            })
             .collect()
     }
 }
@@ -74,6 +80,34 @@ pub trait QueryParameters: Serialize + Sized {
 #[cfg(test)]
 mod test {
     use super::*;
+
+    #[test]
+    fn test_job_filter_all_vec() {
+        let f = JobFilter {
+            status: None,
+            ground_station: Some(1860),
+            start: Some("2026-01-31T00:00:00Z".to_string()),
+            end: None,
+            transmitter_uuid: None,
+            transmitter_mode: None,
+            transmitter_type: None,
+            observer: None,
+            sat_id: None,
+            start__lt: None,
+            end__gt: None,
+            observation_id: None,
+            norad_cat_id: None,
+        };
+
+        let query = f.into_vec();
+        assert_eq!(
+            query,
+            vec![
+                ("ground_station".to_string(), "1860".to_string()),
+                ("start".to_string(), "2026-01-31T00:00:00Z".to_string()),
+            ]
+        );
+    }
 
     #[test]
     fn test_station_filter_all_vec() {
