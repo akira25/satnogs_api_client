@@ -1,6 +1,7 @@
 use crate::filters::*;
 use crate::json::*;
 use regex::Regex;
+use std::fmt::Debug;
 use ureq::Error;
 
 /// JSON-API-Client for the SatNOGs Network
@@ -70,6 +71,7 @@ impl APIClient {
             .read_json()
     }
 
+    /// Filters the next-cursor-url from the Link-Header
     fn get_next_cursor_url(&self, s: &str) -> Option<String> {
         let re = Regex::new(r#"<([^>]+)>; rel="next""#).ok()?;
         re.captures(s)?.get(1).map(|m| m.as_str().to_string())
@@ -79,7 +81,7 @@ impl APIClient {
     fn get_with_query<T, F>(&self, path: &str, filter: F) -> Result<Vec<T>, Error>
     where
         T: serde::de::DeserializeOwned,
-        F: QueryParameters,
+        F: QueryParameters + Debug,
     {
         let mut json_aggregator: Vec<T> = Vec::new();
         let mut next_page = "https://next-cursor-link.example.org".to_string();
@@ -123,6 +125,7 @@ impl APIClient {
 mod test {
     use super::*;
     use crate::filters;
+    use chrono::{DateTime, Utc};
 
     #[test]
     fn test_something() {
@@ -133,8 +136,16 @@ mod test {
         let f = filters::ObservationFilter {
             status: None,
             ground_station: None,
-            start: Some("2026-02-01T00:00:00Z".to_string()),
-            end: Some("2026-02-01T00:20:00Z".to_string()),
+            start: Some(
+                DateTime::parse_from_rfc3339("2026-02-01T00:00:00Z")
+                    .unwrap()
+                    .with_timezone(&Utc),
+            ),
+            end: Some(
+                DateTime::parse_from_rfc3339("2026-02-01T00:20:00Z")
+                    .unwrap()
+                    .with_timezone(&Utc),
+            ),
             transmitter_uuid: None,
             transmitter_mode: None,
             transmitter_type: None,

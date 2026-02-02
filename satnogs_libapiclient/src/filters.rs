@@ -1,8 +1,7 @@
+use chrono::{DateTime, Utc};
 use serde::Serialize;
 use serde_json;
 use serde_urlencoded::ser::Error;
-
-type DtStr = String; // 2026-02-01T00:14:11Z
 
 #[derive(Debug, Serialize, Default, Clone)]
 pub struct StationFilter {
@@ -17,15 +16,15 @@ impl QueryParameters for StationFilter {}
 pub struct JobFilter {
     pub status: Option<String>,
     pub ground_station: Option<u32>,
-    pub start: Option<DtStr>,
-    pub end: Option<DtStr>,
+    pub start: Option<DateTime<Utc>>,
+    pub end: Option<DateTime<Utc>>,
     pub transmitter_uuid: Option<String>,
     pub transmitter_mode: Option<String>,
     pub transmitter_type: Option<String>,
     pub observer: Option<String>,
     pub sat_id: Option<String>,
-    pub start__lt: Option<DtStr>,
-    pub end__gt: Option<DtStr>,
+    pub start__lt: Option<DateTime<Utc>>,
+    pub end__gt: Option<DateTime<Utc>>,
     pub observation_id: Option<u64>,
     pub norad_cat_id: Option<u32>,
 }
@@ -36,8 +35,8 @@ impl QueryParameters for JobFilter {}
 pub struct ObservationFilter {
     pub status: Option<String>,
     pub ground_station: Option<u32>,
-    pub start: Option<DtStr>,
-    pub end: Option<DtStr>,
+    pub start: Option<DateTime<Utc>>,
+    pub end: Option<DateTime<Utc>>,
     pub transmitter_uuid: Option<String>,
     pub transmitter_mode: Option<String>,
     pub transmitter_type: Option<String>,
@@ -46,8 +45,8 @@ pub struct ObservationFilter {
     pub vetted_user: Option<String>,
     pub observer: Option<String>,
     pub sat_id: Option<String>,
-    pub start__lt: Option<DtStr>,
-    pub end__gt: Option<DtStr>,
+    pub start__lt: Option<DateTime<Utc>>,
+    pub end__gt: Option<DateTime<Utc>>,
     pub observation_id: Option<u64>,
     pub norad_cat_id: Option<u32>,
 }
@@ -86,7 +85,11 @@ mod test {
         let f = JobFilter {
             status: None,
             ground_station: Some(1860),
-            start: Some("2026-01-31T00:00:00Z".to_string()),
+            start: Some(
+                DateTime::parse_from_rfc3339("2026-01-31T00:00:00Z")
+                    .unwrap()
+                    .with_timezone(&Utc),
+            ),
             end: None,
             transmitter_uuid: None,
             transmitter_mode: None,
