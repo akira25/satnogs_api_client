@@ -1,6 +1,7 @@
 use serde::{Deserialize, Serialize};
+use chrono::{DateTime, Utc};
 
-#[derive(Serialize, Deserialize, Debug)]
+#[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct Antenna {
     pub frequency: u64,
     pub frequency_max: u64,
@@ -33,8 +34,8 @@ pub struct Station {
     pub lng: f32,
     pub qthlocator: String,
     pub antenna: Vec<Antenna>,
-    pub created: String,           //"2020-11-01T18:16:21Z",
-    pub last_seen: Option<String>, //"2026-01-30T23:24:51Z",
+    pub created: DateTime<Utc>,
+    pub last_seen: Option<DateTime<Utc>>,
     pub status: String,            // "Online",
     pub observations: u64,
     pub future_observations: u32,
@@ -49,8 +50,8 @@ pub struct Station {
 #[derive(Serialize, Deserialize, Debug)]
 pub struct Job {
     pub id: u64,
-    pub start: String, // "2026-02-02T00:14:11Z",
-    pub end: String,   // "2026-02-02T00:18:00Z",
+    pub start: DateTime<Utc>,
+    pub end: DateTime<Utc>,
     pub ground_station: u64,
     pub tle0: String, //"0 OBJECT XW",
     pub tle1: String, //"1 66910U 98067XW  26030.36276135  .00109916  00000-0  13335-2 0  9999",
@@ -73,8 +74,8 @@ pub struct DemodData {
 #[derive(Serialize, Deserialize, Debug)]
 pub struct Observation {
     pub id: u64,
-    pub start: String, // "2026-02-02T00:14:11Z",
-    pub end: String,   // "2026-02-02T00:18:00Z",
+    pub start: DateTime<Utc>,
+    pub end: DateTime<Utc>,
     pub ground_station: u32,
     pub transmitter: String, // "Ymz7CW3EYAYxCV9JNvbD98",
     pub norad_cat_id: u32,

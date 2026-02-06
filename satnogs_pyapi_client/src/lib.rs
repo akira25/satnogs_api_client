@@ -6,6 +6,21 @@ use satnogs_libapiclient::{api_client::APIClient, filters::*, json::*};
 
 static REQUEST_TIMEOUT: u64 = 30;
 
+mod station;
+use crate::station::*;
+mod station_filter;
+use crate::station_filter::*;
+
+mod job;
+use crate::job::*;
+// mod job_filter;
+// use crate::job_filter::*;
+
+mod observation;
+use crate::observation::*;
+// mod observation_filter;
+// use crate::observation_filter::*;
+
 #[pyclass(name = "APIClient")]
 pub struct PyAPIClient {
     i: APIClient,
@@ -26,20 +41,23 @@ impl PyAPIClient {
         }
 
         Self {
-            i: APIClient { agent, api_url: api_url },
+            i: APIClient {
+                agent,
+                api_url: api_url,
+            },
         }
     }
-
-    // Example for properties-method. Results in accessing field directly in python
-    //#[getter]
-    //fn a(&self) -> i32 {
-    //    self.inner.a
-    //}
 
     fn get_station(&self, id: u64) -> PyStation {
         PyStation {
             i: self.i.get_station(id).unwrap(),
         }
+    }
+
+    fn get_stations(&self, f: PyStationFilter) -> PyResult<Vec<PyStation>> {
+        let stations = self.i.get_stations(f.into()).unwrap();
+
+        Ok(stations.into_iter().map(|i| PyStation { i }).collect())
     }
 
     fn get_job(&self, id: u64) -> PyJob {
@@ -55,56 +73,6 @@ impl PyAPIClient {
     }
 }
 
-#[pyclass(name = "Station")]
-pub struct PyStation {
-    i: Station,
-}
-
-#[pymethods]
-impl PyStation {
-    //fn __repr__(&self) -> String {
-    //    format!(
-    //        "Station(name={!r}, latitude={}, longitude={})",
-    //        self.i.name,
-    //        self.i.latitude,
-    //        self.i.longitude
-    //    )
-    //}
-    fn __repr__(&self) -> String {
-        format!("{:?}", self.i)
-    }
-}
-
-#[pyclass(name = "Job")]
-pub struct PyJob {
-    i: Job,
-}
-
-#[pymethods]
-impl PyJob {
-    fn __repr__(&self) -> String {
-        format!("{:?}", self.i)
-    }
-}
-
-#[pyclass(name = "Observation")]
-pub struct PyObservation {
-    i: Observation,
-}
-
-#[pymethods]
-impl PyObservation {
-    fn __repr__(&self) -> String {
-        format!("{:?}", self.i)
-    }
-}
-
-
-// #[pyfunction]
-// fn hello() {
-//     println!("Hello from the satnogs API client! This is wirtten in rust.");
-// }
-
 /// Python-Interface for the SatNOGs-Network-API. Implemented in Rust.
 ///
 /// This module provides you an easy-to-use API-Client for usage with the SatNOGs
@@ -119,11 +87,12 @@ impl PyObservation {
 /// them.
 #[pymodule]
 fn satnogs_pyapi_client(m: &Bound<'_, PyModule>) -> PyResult<()> {
-    // m.add_function(wrap_pyfunction!(hello, m)?)?;
     m.add_class::<PyAPIClient>()?;
     m.add_class::<PyStation>()?;
     m.add_class::<PyJob>()?;
     m.add_class::<PyObservation>()?;
+    m.add_class::<PyStationFilter>()?;
+    m.add_class::<PyAntenna>()?;
 
     Ok(())
 }
