@@ -2,6 +2,5 @@
 resolver = "3"
 members = [
     "satnogs_apiclient",
-    "satnogs_libapiclient",
     "satnogs_pyapi_client"
 ]

@@ -2,7 +2,7 @@ use pyo3::prelude::*;
 use std::time::Duration;
 use ureq::Agent;
 
-use satnogs_libapiclient::api_client::APIClient;
+use satnogs_apiclient::api_client::APIClient;
 
 static REQUEST_TIMEOUT: u64 = 30;
 

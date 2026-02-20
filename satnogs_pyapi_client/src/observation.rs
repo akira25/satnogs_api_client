@@ -1,5 +1,5 @@
 use pyo3::prelude::*;
-use satnogs_libapiclient::json::*;
+use satnogs_apiclient::json::*;
 
 #[pyclass(name = "Observation")]
 pub struct PyObservation {

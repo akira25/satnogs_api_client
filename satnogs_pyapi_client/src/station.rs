@@ -1,6 +1,6 @@
 use chrono::{DateTime, Utc};
 use pyo3::prelude::*;
-use satnogs_libapiclient::json::*;
+use satnogs_apiclient::json::*;
 
 #[pyclass(name = "Station")]
 pub struct PyStation {

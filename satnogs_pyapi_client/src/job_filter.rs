@@ -1,6 +1,6 @@
 use chrono::{DateTime, Utc};
 use pyo3::prelude::*;
-use satnogs_libapiclient::filters::*;
+use satnogs_apiclient::filters::*;
 
 #[pyclass(name = "JobFilter")]
 #[derive(Clone)]

@@ -652,19 +652,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "a50f4cf475b65d88e057964e0e9bb1f0aa9bbb2036dc65c64596b42932536984"
 
 [[package]]
-name = "satnogs_api_client"
-version = "0.1.0"
-dependencies = [
- "chrono",
- "satnogs_libapiclient",
- "serde",
- "serde_json",
- "serde_urlencoded",
- "ureq",
-]
-
-[[package]]
-name = "satnogs_libapiclient"
+name = "satnogs_apiclient"
 version = "0.1.0"
 dependencies = [
  "chrono",
@@ -681,7 +669,7 @@ version = "0.1.0"
 dependencies = [
  "chrono",
  "pyo3",
- "satnogs_libapiclient",
+ "satnogs_apiclient",
  "ureq",
 ]
 
