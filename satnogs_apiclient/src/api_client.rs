@@ -3,9 +3,7 @@ use crate::json::*;
 use regex::Regex;
 use std::fmt::Debug;
 use ureq::Agent;
-use ureq::Body;
 use ureq::Error;
-use ureq::http::Response;
 use ureq::typestate::AgentScope;
 
 /// JSON-API-Client for the SatNOGs Network
