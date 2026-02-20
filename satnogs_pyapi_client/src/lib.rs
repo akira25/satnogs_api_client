@@ -2,7 +2,7 @@ use pyo3::prelude::*;
 use std::time::Duration;
 use ureq::Agent;
 
-use satnogs_libapiclient::{api_client::APIClient, filters::*, json::*};
+use satnogs_libapiclient::api_client::APIClient;
 
 static REQUEST_TIMEOUT: u64 = 30;
 
@@ -13,13 +13,13 @@ use crate::station_filter::*;
 
 mod job;
 use crate::job::*;
-// mod job_filter;
-// use crate::job_filter::*;
+mod job_filter;
+use crate::job_filter::*;
 
 mod observation;
 use crate::observation::*;
-// mod observation_filter;
-// use crate::observation_filter::*;
+mod observation_filter;
+use crate::observation_filter::*;
 
 #[pyclass(name = "APIClient")]
 pub struct PyAPIClient {
@@ -66,10 +66,22 @@ impl PyAPIClient {
         }
     }
 
+    fn get_jobs(&self, f: PyJobFilter) -> PyResult<Vec<PyJob>> {
+        let jobs = self.i.get_jobs(f.into()).unwrap();
+
+        Ok(jobs.into_iter().map(|i| PyJob { i }).collect())
+    }
+
     fn get_observation(&self, id: u64) -> PyObservation {
         PyObservation {
             i: self.i.get_observation(id).unwrap(),
         }
+    }
+
+    fn get_observations(&self, f: PyObservationFilter) -> PyResult<Vec<PyObservation>> {
+        let obs = self.i.get_observations(f.into()).unwrap();
+
+        Ok(obs.into_iter().map(|i| PyObservation { i }).collect())
     }
 }
 
@@ -88,11 +100,15 @@ impl PyAPIClient {
 #[pymodule]
 fn satnogs_pyapi_client(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_class::<PyAPIClient>()?;
-    m.add_class::<PyStation>()?;
+
+    m.add_class::<PyAntenna>()?;
     m.add_class::<PyJob>()?;
     m.add_class::<PyObservation>()?;
+    m.add_class::<PyStation>()?;
+
+    m.add_class::<PyJobFilter>()?;
+    m.add_class::<PyObservationFilter>()?;
     m.add_class::<PyStationFilter>()?;
-    m.add_class::<PyAntenna>()?;
 
     Ok(())
 }

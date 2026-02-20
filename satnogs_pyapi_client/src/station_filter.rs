@@ -10,6 +10,7 @@ pub struct PyStationFilter {
 #[pymethods]
 impl PyStationFilter {
     #[new]
+    #[pyo3(signature = (status=None, name=None, client_version=None))]
     pub fn new(
         status: Option<String>,
         name: Option<String>,
@@ -22,6 +23,15 @@ impl PyStationFilter {
                 client_version,
             },
         }
+    }
+
+    fn __repr__(&self) -> String {
+        format!(
+            "StationFilter(status={:?}, name={:?}, client_version={:?})",
+            self.i.status,
+            self.i.name,
+            self.i.client_version
+        )
     }
 
     #[getter]
@@ -52,10 +62,6 @@ impl PyStationFilter {
     fn set_client_version(&mut self, v: Option<String>) -> PyResult<()> {
         self.i.name = v;
         Ok(())
-    }
-
-    fn __repr__(&self) -> String {
-        format!("{:?}", self.i)
     }
 }
 

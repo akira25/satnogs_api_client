@@ -12,10 +12,29 @@ pub struct PyJobFilter {
 #[pymethods]
 impl PyJobFilter {
     fn __repr__(&self) -> String {
-        format!("{:?}", self.i)
+        format!(
+            "JobFilter(status={:?}, ground_station={:?}, start={:?}, end={:?}, transmitter_uuid={:?}, transmitter_mode={:?}, transmitter_type={:?}, observer={:?}, sat_id={:?}, start__lt={:?}, end__gt={:?}, observation_id={:?}, norad_cat_id={:?})",
+            self.i.status,
+            self.i.ground_station,
+            self.i.start,
+            self.i.end,
+            self.i.transmitter_uuid,
+            self.i.transmitter_mode,
+            self.i.transmitter_type,
+            self.i.observer,
+            self.i.sat_id,
+            self.i.start__lt,
+            self.i.end__gt,
+            self.i.observation_id,
+            self.i.norad_cat_id,
+        )
     }
 
     #[new]
+    #[pyo3(signature = (
+        status=None, ground_station=None, start=None, end=None, transmitter_uuid=None,
+        transmitter_mode=None, transmitter_type=None, observer=None, sat_id=None,
+        start__lt=None, end__gt=None, observation_id=None, norad_cat_id=None,))]
     pub fn new(
         status: Option<String>,
         ground_station: Option<u32>,
