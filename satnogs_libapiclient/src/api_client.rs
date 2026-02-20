@@ -2,7 +2,11 @@ use crate::filters::*;
 use crate::json::*;
 use regex::Regex;
 use std::fmt::Debug;
+use ureq::Agent;
+use ureq::Body;
 use ureq::Error;
+use ureq::http::Response;
+use ureq::typestate::AgentScope;
 
 /// JSON-API-Client for the SatNOGs Network
 ///
@@ -23,11 +27,14 @@ pub struct APIClient {
 // Design decision: get_somethingS enforce the usage of filters, to
 // incentify reduction of load on server
 impl APIClient {
-    pub fn new(agent: ureq::Agent, mut api_url: String) -> APIClient {
+    pub fn new(conf: ureq::config::ConfigBuilder<AgentScope>, mut api_url: String) -> APIClient {
         // Append trailing '/' if necessary
         if !api_url.ends_with("/") {
             api_url.push('/');
         }
+
+        let config = conf.http_status_as_error(false).build();
+        let agent: Agent = config.into();
 
         APIClient {
             agent,
@@ -130,8 +137,8 @@ mod test {
     #[test]
     fn test_something() {
         let api_url = "https://network.satnogs.org/api/".to_string();
-        let agent = ureq::Agent::new_with_defaults();
-        let client = APIClient { agent, api_url };
+        let conf = Agent::config_builder();
+        let client = APIClient::new(conf, api_url);
 
         let f = filters::ObservationFilter {
             status: None,
@@ -172,8 +179,9 @@ mod test {
         "#;
 
         let api_url = "https://network.satnogs.org/api/".to_string();
-        let agent = ureq::Agent::new_with_defaults();
-        let client = APIClient { agent, api_url };
+
+        let conf = Agent::config_builder();
+        let client = APIClient::new(conf, api_url);
 
         let s = client.get_next_cursor_url(header).unwrap();
 

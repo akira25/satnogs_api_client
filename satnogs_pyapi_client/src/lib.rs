@@ -30,21 +30,15 @@ pub struct PyAPIClient {
 impl PyAPIClient {
     #[new]
     fn new(mut api_url: String) -> Self {
-        let config = Agent::config_builder()
-            .timeout_global(Some(Duration::from_secs(REQUEST_TIMEOUT)))
-            .build();
-
-        let agent: Agent = config.into();
-
         if !api_url.ends_with("/") {
             api_url.push('/');
         }
 
+        let conf = Agent::config_builder()
+            .timeout_global(Some(Duration::from_secs(REQUEST_TIMEOUT)));
+
         Self {
-            i: APIClient {
-                agent,
-                api_url: api_url,
-            },
+            i: APIClient::new(conf, api_url)
         }
     }
 
