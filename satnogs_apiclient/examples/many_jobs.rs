@@ -12,7 +12,7 @@ fn main() {
 
     let api = APIClient::new(config, SATNOGS_NETWORK_URL.to_string());
     let f = JobFilter {
-        ground_station: Some(1860),
+        ground_station: Some(106),
         ..Default::default()
     };
     let jobs = api.get_jobs(f).unwrap();

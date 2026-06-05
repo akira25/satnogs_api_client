@@ -1,5 +1,6 @@
 use serde::{Deserialize, Serialize};
 use chrono::{DateTime, Utc};
+use std::hash::{Hash, Hasher};
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct Antenna {
@@ -47,7 +48,7 @@ pub struct Station {
     pub owner: String,
 }
 
-#[derive(Serialize, Deserialize, Debug)]
+#[derive(Clone, Serialize, Deserialize, Debug, PartialOrd)]
 pub struct Job {
     pub id: u64,
     pub start: DateTime<Utc>,
@@ -123,4 +124,21 @@ pub struct Observation {
     pub observation_frequency: u64, // 437165000,
     pub transmitter_unconfirmed: bool,
     pub sat_id: String, // "NTJV-2293-0787-8038-8343"
+}
+
+//
+// --- Trait implementations
+//
+impl PartialEq for Job {
+    fn eq(&self, other: &Self) -> bool {
+        self.id == other.id
+    }
+}
+
+impl Eq for Job {}
+
+impl Hash for Job {
+    fn hash<H: Hasher>(&self, state: &mut H) {
+        self.id.hash(state);
+    }
 }

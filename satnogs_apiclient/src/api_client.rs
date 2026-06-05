@@ -17,6 +17,7 @@ use ureq::typestate::AgentScope;
 ///
 /// With plural-functions, you can also hand in a filter-struct, that will
 /// narrow down your search query to the server.
+#[derive(Debug, Clone)]
 pub struct APIClient {
     pub agent: ureq::Agent,
     pub api_url: String,
