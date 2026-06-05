@@ -1,6 +1,8 @@
 use crate::filters::*;
 use crate::json::*;
+use log::debug;
 use regex::Regex;
+use serde::Serialize;
 use std::fmt::Debug;
 use ureq::Agent;
 use ureq::Error;
@@ -21,6 +23,35 @@ use ureq::typestate::AgentScope;
 pub struct APIClient {
     pub agent: ureq::Agent,
     pub api_url: String,
+}
+
+/// A struct containing station information, that get sent with every heartbeat
+/// to the network
+#[derive(Debug, Serialize)]
+pub struct BasicStationInfo {
+    pub ground_station: u32,
+    pub lat: f32,
+    pub lon: f32,
+    pub alt: u32,
+}
+
+impl BasicStationInfo {
+    pub fn into_vec(self) -> Vec<(String, String)> {
+        let value = serde_json::to_value(self).unwrap();
+
+        value
+            .as_object()
+            .unwrap()
+            .iter()
+            .filter_map(|(k, v)| {
+                if v.is_null() {
+                    None
+                } else {
+                    Some((k.clone(), v.to_string().trim_matches('"').to_string()))
+                }
+            })
+            .collect()
+    }
 }
 
 // Design decision: get_somethingS enforce the usage of filters, to
@@ -55,6 +86,57 @@ impl APIClient {
 
     pub fn get_jobs(&self, f: JobFilter) -> Result<Vec<Job>, Error> {
         self.get_with_query("jobs/", f)
+    }
+
+    /// Same result as in ```get_jobs()```, though this get function performs
+    /// the heartbeat feature for the network. In the GET-request, there are
+    /// basic information included about the station. In networks standard
+    /// configuration, a heartbeat needs to be performed once a minute.
+    pub fn get_jobs_heartbeat(
+        &self,
+        f: JobFilter,
+        info: BasicStationInfo,
+        api_token: String,
+    ) -> Result<Vec<Job>, Error> {
+        let mut json_aggregator: Vec<Job> = Vec::new();
+        let mut next_page = "https://next-cursor-link.example.org".to_string();
+
+        let mut resp = self
+            .agent
+            .get(format!("{}{}", self.api_url, "jobs/"))
+            .query_pairs(f.into_vec())
+            .query_pairs(info.into_vec())
+            .header("Authorization", format!("Token {api_token}"))
+            .call()?;
+
+        while !next_page.is_empty() {
+            let b = resp.body_mut();
+            let s = b.read_to_string()?;
+            debug!("{s}");
+            let json: Vec<Job> = serde_json::from_str(&s)?;
+            json_aggregator.extend(json);
+
+            //search for link-header
+            match resp.headers().get("Link") {
+                Some(s) => {
+                    // was there a next-link?
+                    match self.get_next_cursor_url(s.to_str().unwrap()) {
+                        Some(link) => {
+                            next_page = link;
+                            resp = self.agent.get(next_page.clone()).call()?;
+                        }
+                        None => {
+                            next_page.clear();
+                        }
+                    }
+                }
+                None => {
+                    next_page.clear();
+                }
+            }
+        }
+
+        Ok(json_aggregator)
     }
 
     pub fn get_observation(&self, id: u64) -> Result<Observation, Error> {
