@@ -7,7 +7,7 @@ use std::time::Duration;
 fn main() {
     let api_url = "https://network.satnogs.org/api/".to_string();
     let conf = Agent::config_builder();
-    let client = APIClient::new(conf, api_url);
+    let client = APIClient::new(conf, api_url, None);
 
     let f = filters::ObservationFilter {
         ground_station: Some(106),

@@ -10,7 +10,7 @@ fn main() {
     let config = Agent::config_builder()
         .timeout_global(Some(Duration::from_secs(20)));
 
-    let api = APIClient::new(config, SATNOGS_NETWORK_URL.to_string());
+    let api = APIClient::new(config, SATNOGS_NETWORK_URL.to_string(), None);
     let f = JobFilter {
         ground_station: Some(106),
         ..Default::default()

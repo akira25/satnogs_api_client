@@ -9,7 +9,7 @@ fn main() {
     let config = Agent::config_builder()
         .timeout_global(Some(Duration::from_secs(60)));
 
-    let api = APIClient::new(config, SATNOGS_NETWORK_URL.to_string());
+    let api = APIClient::new(config, SATNOGS_NETWORK_URL.to_string(), None);
     let single_station = api.get_station(1860).unwrap();
 
     println!("{:?}", single_station);

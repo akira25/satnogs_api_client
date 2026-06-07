@@ -4,9 +4,11 @@ use log::debug;
 use regex::Regex;
 use serde::Serialize;
 use std::fmt::Debug;
+use std::path::Path;
 use ureq::Agent;
 use ureq::Error;
 use ureq::typestate::AgentScope;
+use ureq::unversioned::multipart;
 
 /// JSON-API-Client for the SatNOGs Network
 ///
@@ -23,11 +25,12 @@ use ureq::typestate::AgentScope;
 pub struct APIClient {
     pub agent: ureq::Agent,
     pub api_url: String,
+    pub api_token: Option<String>,
 }
 
 /// A struct containing station information, that get sent with every heartbeat
 /// to the network
-#[derive(Debug, Serialize)]
+#[derive(Debug, Serialize, Clone)]
 pub struct BasicStationInfo {
     pub ground_station: u32,
     pub lat: f32,
@@ -54,10 +57,30 @@ impl BasicStationInfo {
     }
 }
 
+pub enum UploadType {
+    Demoddata,
+    Waterfall,
+    Audio,
+}
+
+impl ToString for UploadType {
+    fn to_string(&self) -> String {
+        match self {
+            UploadType::Demoddata => "demoddata".to_string(),
+            UploadType::Waterfall => "waterfall".to_string(),
+            UploadType::Audio => "payload".to_string(),
+        }
+    }
+}
+
 // Design decision: get_somethingS enforce the usage of filters, to
 // incentify reduction of load on server
 impl APIClient {
-    pub fn new(conf: ureq::config::ConfigBuilder<AgentScope>, mut api_url: String) -> APIClient {
+    pub fn new(
+        conf: ureq::config::ConfigBuilder<AgentScope>,
+        mut api_url: String,
+        api_token: Option<String>,
+    ) -> APIClient {
         // Append trailing '/' if necessary
         if !api_url.ends_with("/") {
             api_url.push('/');
@@ -69,6 +92,7 @@ impl APIClient {
         APIClient {
             agent,
             api_url: api_url,
+            api_token,
         }
     }
 
@@ -96,17 +120,25 @@ impl APIClient {
         &self,
         f: JobFilter,
         info: BasicStationInfo,
-        api_token: String,
     ) -> Result<Vec<Job>, Error> {
         let mut json_aggregator: Vec<Job> = Vec::new();
         let mut next_page = "https://next-cursor-link.example.org".to_string();
+
+        if self.api_token.is_none() {
+            eprintln!("No API-Token given on initialisation. Can not perform this operation");
+            // ToDo: Make reason more clear by not mis-using this generic error type
+            return Err(Error::ConnectionFailed);
+        }
 
         let mut resp = self
             .agent
             .get(format!("{}{}", self.api_url, "jobs/"))
             .query_pairs(f.into_vec())
             .query_pairs(info.into_vec())
-            .header("Authorization", format!("Token {api_token}"))
+            .header(
+                "Authorization",
+                format!("Token {}", self.api_token.clone().unwrap()),
+            )
             .call()?;
 
         while !next_page.is_empty() {
@@ -219,7 +251,7 @@ mod test {
     fn test_something() {
         let api_url = "https://network.satnogs.org/api/".to_string();
         let conf = Agent::config_builder();
-        let client = APIClient::new(conf, api_url);
+        let client = APIClient::new(conf, api_url, None);
 
         let f = filters::ObservationFilter {
             status: None,
@@ -262,7 +294,7 @@ mod test {
         let api_url = "https://network.satnogs.org/api/".to_string();
 
         let conf = Agent::config_builder();
-        let client = APIClient::new(conf, api_url);
+        let client = APIClient::new(conf, api_url, None);
 
         let s = client.get_next_cursor_url(header).unwrap();
 

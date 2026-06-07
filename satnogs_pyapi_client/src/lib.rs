@@ -2,9 +2,9 @@ use pyo3::prelude::*;
 use std::time::Duration;
 use ureq::Agent;
 
-use satnogs_apiclient::api_client::APIClient;
+use satnogs_apiclient::api_client::{APIClient, BasicStationInfo};
 
-static REQUEST_TIMEOUT: u64 = 30;
+static REQUEST_TIMEOUT: u64 = 30; // seconds
 
 mod station;
 use crate::station::*;
@@ -21,6 +21,9 @@ use crate::observation::*;
 mod observation_filter;
 use crate::observation_filter::*;
 
+mod basic_station_info;
+use crate::basic_station_info::*;
+
 #[pyclass(name = "APIClient")]
 pub struct PyAPIClient {
     i: APIClient,
@@ -29,16 +32,23 @@ pub struct PyAPIClient {
 #[pymethods]
 impl PyAPIClient {
     #[new]
-    fn new(mut api_url: String) -> Self {
+    #[pyo3(signature = (api_url, api_token=None))]
+    fn new(mut api_url: String, api_token: Option<String>) -> Self {
         if !api_url.ends_with("/") {
             api_url.push('/');
         }
 
-        let conf = Agent::config_builder()
-            .timeout_global(Some(Duration::from_secs(REQUEST_TIMEOUT)));
+        let conf =
+            Agent::config_builder().timeout_global(Some(Duration::from_secs(REQUEST_TIMEOUT)));
 
-        Self {
-            i: APIClient::new(conf, api_url)
+        if api_token.is_some() {
+            Self {
+                i: APIClient::new(conf, api_url, api_token),
+            }
+        } else {
+            Self {
+                i: APIClient::new(conf, api_url, None),
+            }
         }
     }
 
@@ -62,6 +72,12 @@ impl PyAPIClient {
 
     fn get_jobs(&self, f: PyJobFilter) -> PyResult<Vec<PyJob>> {
         let jobs = self.i.get_jobs(f.into()).unwrap();
+
+        Ok(jobs.into_iter().map(|i| PyJob { i }).collect())
+    }
+
+    fn get_jobs_heartbeat(&self, f: PyJobFilter, info: PyBasicStationInfo) -> PyResult<Vec<PyJob>> {
+        let jobs = self.i.get_jobs_heartbeat(f.into(), info.into()).unwrap();
 
         Ok(jobs.into_iter().map(|i| PyJob { i }).collect())
     }
@@ -99,6 +115,7 @@ fn satnogs_pyapi_client(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_class::<PyJob>()?;
     m.add_class::<PyObservation>()?;
     m.add_class::<PyStation>()?;
+    m.add_class::<PyBasicStationInfo>()?;
 
     m.add_class::<PyJobFilter>()?;
     m.add_class::<PyObservationFilter>()?;
