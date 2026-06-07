@@ -239,6 +239,38 @@ impl APIClient {
 
         Ok(json_aggregator)
     }
+
+    fn put_observation_data(
+        &self,
+        id: u64,
+        upload_type: UploadType,
+        file: &Path,
+    ) -> Result<(), Error> {
+        if self.api_token.is_none() {
+            eprintln!("No API-Token given on initialisation. Can not perform this operation");
+            // ToDo: Make reason more clear by not mis-using this generic error type
+            return Err(Error::ConnectionFailed);
+        }
+
+        let url = format!("{}{}/{}", self.api_url, "observations", id);
+
+        let upload_type = upload_type.to_string();
+        let form = multipart::Form::new().part(
+            &upload_type,
+            multipart::Part::file(file)?.mime_str("application/octet-stream")?,
+        );
+
+        let resp = ureq::put(url)
+            .header(
+                "Authorization",
+                &format!("Token {}", self.api_token.clone().unwrap()),
+            )
+            .send(form);
+
+        println!("{:?}", resp);
+
+        Ok(())
+    }
 }
 
 #[cfg(test)]
