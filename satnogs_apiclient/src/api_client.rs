@@ -57,6 +57,7 @@ impl BasicStationInfo {
     }
 }
 
+#[derive(Debug)]
 pub enum UploadType {
     Demoddata,
     Waterfall,
@@ -240,7 +241,7 @@ impl APIClient {
         Ok(json_aggregator)
     }
 
-    fn put_observation_data(
+    pub fn put_observation_data(
         &self,
         id: u64,
         upload_type: UploadType,
@@ -252,7 +253,7 @@ impl APIClient {
             return Err(Error::ConnectionFailed);
         }
 
-        let url = format!("{}{}/{}", self.api_url, "observations", id);
+        let url = format!("{}{}/{}/", self.api_url, "observations", id);
 
         let upload_type = upload_type.to_string();
         let form = multipart::Form::new().part(
