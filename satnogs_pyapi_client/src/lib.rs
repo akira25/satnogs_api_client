@@ -108,7 +108,7 @@ impl PyAPIClient {
 /// `get_jobs(filter)`, you will get ALL jobs in the network, unless you filter
 /// them.
 #[pymodule]
-fn satnogs_pyapi_client(m: &Bound<'_, PyModule>) -> PyResult<()> {
+fn satnogs_api_client(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_class::<PyAPIClient>()?;
 
     m.add_class::<PyAntenna>()?;
