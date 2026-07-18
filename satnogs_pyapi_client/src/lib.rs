@@ -32,7 +32,7 @@ pub struct PyAPIClient {
 #[pymethods]
 impl PyAPIClient {
     #[new]
-    #[pyo3(signature = (api_url, api_token=None))]
+    #[pyo3(signature = (api_url="https://network.satnogs.org/api/".to_string(), api_token=None))]
     fn new(mut api_url: String, api_token: Option<String>) -> Self {
         if !api_url.ends_with("/") {
             api_url.push('/');

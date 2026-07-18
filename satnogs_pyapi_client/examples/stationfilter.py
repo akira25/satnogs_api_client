@@ -1,6 +1,6 @@
-from satnogs_pyapi_client import APIClient, StationFilter
+from satnogs_api_client import APIClient, StationFilter
 
-client = APIClient("https://network.satnogs.org/api")
+client = APIClient()
 
 # get information of a single station
 beegnd = client.get_station(1860)

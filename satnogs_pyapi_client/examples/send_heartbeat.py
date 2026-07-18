@@ -1,6 +1,6 @@
 #!/usr/bin/python3
 
-from satnogs_pyapi_client import APIClient, JobFilter, BasicStationInfo
+from satnogs_api_client import APIClient, JobFilter, BasicStationInfo
 import datetime as dt
 
 token = "ADD_YOU_TOKEN_HERE"
@@ -11,8 +11,7 @@ f = JobFilter(ground_station=263)
 
 # create a datetime object for time filtering (tzinfo mandatory!)
 date = dt.datetime.now(tz=dt.UTC) + dt.timedelta(hours=5)
-# modification possible via getter/setter
-f.start = date
+f.start = date  # modification possible via getter/setter
 
 station = BasicStationInfo(ground_station=263, lat=52.5, lon=13.5, alt=42)
 

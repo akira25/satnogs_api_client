@@ -1,4 +1,4 @@
-from satnogs_pyapi_client import APIClient, ObservationFilter
+from satnogs_api_client import APIClient, ObservationFilter
 import datetime as dt
 
 c = APIClient("https://network.satnogs.org/api")
