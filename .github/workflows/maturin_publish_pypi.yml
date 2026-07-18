@@ -30,6 +30,11 @@ jobs:
             target: x86
           - runner: ubuntu-22.04
             target: aarch64
+            # The GCC cross-compiler bundled in the manylinux2014-cross:aarch64
+            # image doesn't predefine __ARM_ARCH, which the `ring` crate (a
+            # transitive dependency via rustls) requires when assembling its
+            # aarch64 asm. Define it explicitly to work around that.
+            docker_options: -e CFLAGS_aarch64_unknown_linux_gnu=-D__ARM_ARCH=8
           - runner: ubuntu-22.04
             target: armv7
           - runner: ubuntu-22.04
@@ -49,6 +54,7 @@ jobs:
           args: --release --out dist
           sccache: ${{ !startsWith(github.ref, 'refs/tags/') }}
           manylinux: auto
+          docker-options: ${{ matrix.platform.docker_options }}
       - name: Build free-threaded wheels
         uses: PyO3/maturin-action@v1
         with:
@@ -57,6 +63,7 @@ jobs:
           args: --release --out dist -i python3.14t
           sccache: ${{ !startsWith(github.ref, 'refs/tags/') }}
           manylinux: auto
+          docker-options: ${{ matrix.platform.docker_options }}
       - name: Upload wheels
         uses: actions/upload-artifact@v5
         with:
