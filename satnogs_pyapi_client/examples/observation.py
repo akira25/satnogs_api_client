@@ -1,6 +1,6 @@
 #!/usr/bin/python3
 
-from satnogs_pyapi_client import *
+from satnogs_api_client import *
 
 c = APIClient("https://network.satnogs.org/api")
 

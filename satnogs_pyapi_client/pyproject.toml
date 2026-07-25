@@ -2,7 +2,38 @@
 requires = ["maturin>=1.0,<2.0"]
 build-backend = "maturin"
 
+[project]
+name = "satnogs-api-client"
+requires-python = ">=3.8"
+authors = [
+  { name="Martin Hübner", email="martin.hubner@web.de" },
+]
+description = "A rust-based API client for the SatNOGS network"
+readme = "../README.md"
+license = "MIT"
+license-files = ["LICEN[CS]E*"]
+classifiers = [
+    "Programming Language :: Rust",
+    "Programming Language :: Python :: Implementation :: CPython",
+    "Programming Language :: Python :: Implementation :: PyPy",
+]
+dynamic = ["version"]
+
+[project.urls]
+Homepage = "https://codeberg.org/akira25/satnogs-api-client"
+Issues = "https://codeberg.org/akira25/satnogs-api-client/issues"
+
+
+[tool.maturin]
+module-name = "satnogs_api_client"
+
 [dependency-groups]
 dev = [
     "maturin>=1.11.5",
 ]
+
+[[tool.uv.index]]
+name = "testpypi"
+url = "https://test.pypi.org/simple/"
+publish-url = "https://test.pypi.org/legacy/"
+explicit = true

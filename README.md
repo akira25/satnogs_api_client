@@ -5,18 +5,42 @@ A rust-based API client for the [SatNOGS network](https://network.satnogs.org)
 > [!TIP]
 > Main Repository: [codeberg.org/akira25/satnogs-api-client](https://codeberg.org/akira25/satnogs-api-client). Please contribute there.
 
-This api client proved a rust and a python interface to communicate with the JSON-API of the SatNOGS network.
+This api client provides a rust and a python interface to communicate with the JSON-API of the SatNOGS network.
 
-Conceptually, there we divide functions into different groups:
+## General API Concept
+
+Conceptually, we divide functions into two different groups:
 
 - Single object calls, like e.g. `get_observation(id: uint64)` and
 - Multi-Object calls e.g.: `get_observation*s*(f: Filter)`
 
 Multi-Object functions take a filter object, that defines criteria that you search for. As your request might be that big, that it will be paginated by the server, you should pay extra attention with those.
 
-## Example: Fetch observations
+Filter objects support both keyword-syntax and getter/setter syntax. Please check the [python examples](#python) below.
 
-This sample requests the observations made by station 106 during the last 12 hours:
+## Install: How to get this
+
+For python users: You can get this package via pypi:
+
+```sh
+pip install satnogs-api-client
+```
+
+For Rustaceans: You can checkout this repo directly, or include it via cargo+git directly:
+
+```toml
+[dependencies]
+satnogs_apiclient = { version = "0.2.1", git = "https://codeberg.org/akira25/satnogs-api-client"}
+```
+Have fun
+
+## Rust
+
+This section shows you an rust example for using the client. For more, please check the [examples-directory](https://codeberg.org/akira25/satnogs-api-client/src/branch/main/satnogs_apiclient/examples) in the repository.
+
+### Fetch Observations
+
+This requests the observations made by station 106 during the last 12 hours:
 
 ```rust
 use satnogs_apiclient::*;
@@ -46,13 +70,20 @@ fn main() {
 }
 ```
 
-The same example looks like this in python:
+
+## Python
+
+This section shows you python example for using the client. For more, please check the [examples-directory](https://codeberg.org/akira25/satnogs-api-client/src/branch/main/satnogs_pyapi_client/examples) in the repository.
+
+### Fetch Observations
+
+The same example from above looks like this in python:
 
 ```python
-from satnogs_pyapi_client import APIClient, ObservationFilter
+from satnogs_api_client import APIClient, ObservationFilter
 import datetime as dt
 
-c = APIClient("https://network.satnogs.org/api")
+c = APIClient()  # URL can be omitted
 
 now = dt.datetime.utcnow()
 
