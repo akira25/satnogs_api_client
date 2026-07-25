@@ -19,6 +19,11 @@ classifiers = [
 ]
 dynamic = ["version"]
 
+[project.urls]
+Homepage = "https://codeberg.org/akira25/satnogs-api-client"
+Issues = "https://codeberg.org/akira25/satnogs-api-client/issues"
+
+
 [tool.maturin]
 module-name = "satnogs_api_client"
 
