@@ -5,6 +5,13 @@ build-backend = "maturin"
 [project]
 name = "satnogs-api-client"
 requires-python = ">=3.8"
+authors = [
+  { name="Martin Hübner", email="martin.hubner@web.de" },
+]
+description = "A rust-based API client for the SatNOGS network"
+readme = "../README.md"
+license = "MIT"
+license-files = ["LICEN[CS]E*"]
 classifiers = [
     "Programming Language :: Rust",
     "Programming Language :: Python :: Implementation :: CPython",
